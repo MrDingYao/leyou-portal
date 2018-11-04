@@ -8,10 +8,12 @@
     <link rel="icon" href="assets/img/favicon.ico">
     <link href='./css/material.css' rel="stylesheet">
     <link href="./css/vuetify.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="node_modules/element-ui/lib/theme-chalk/index.css">
     <script src="./js/vue/vue.js"></script>
     <script src="./js/vue/vuetify.js"></script>
     <script src="./js/axios.min.js"></script>
     <script src="./js/common.js"></script>
+    <script src="node_modules/element-ui/lib/index.js"></script>
     <link rel="stylesheet" type="text/css" href="css/webbase.css"/>
     <link rel="stylesheet" type="text/css" href="css/pages-list.css"/>
     <link rel="stylesheet" type="text/css" href="css/widget-cartPanelView.css"/>
@@ -230,7 +232,9 @@
                                 <i class="command">已有2000人评价</i>
                             </div>
                             <div class="operate">
-                                <a href="success-cart.html" target="_blank" class="sui-btn btn-bordered btn-danger">加入购物车</a>
+                                <a :href="'/item/'+goods.id+'.html?indexes='+goods.selected.indexes" target="_blank" class="sui-btn btn-bordered btn-danger">
+                                    加入购物车
+                                </a>
                                 <a href="javascript:void(0);" class="sui-btn btn-bordered">对比</a>
                                 <a href="javascript:void(0);" class="sui-btn btn-bordered">关注</a>
                             </div>

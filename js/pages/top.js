@@ -103,7 +103,8 @@ const lyTop = {
 
         }).catch(() => {
             // 未登录,从localStorage查询
-            this.count = ly.store.get("carts").map(c => c.num).reduce((c1, c2) => c1 + c2);
+            const carts = ly.store.get("carts");
+            this.count = carts ? carts.map(c => c.num).reduce((c1, c2) => c1 + c2) : 0;
         })
     },
     components: {

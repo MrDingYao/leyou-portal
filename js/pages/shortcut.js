@@ -14,7 +14,7 @@ const shortcut = {
                </li> \
            </ul> \
            <ul class='fr'> \
-               <li class='f-item'>我的订单</li> \
+               <li class='f-item'><a href='home-index.html' target='_blank'>我的订单</a></li> \
                <li class='f-item space'></li> \
                <li class='f-item'><a href='home-index.html' target='_blank'>我的乐优</a></li> \
                <li class='f-item space'></li> \
@@ -59,8 +59,15 @@ const shortcut = {
 
         // 退出登陆
         outLogin(){
+            const filter = ["getOrderInfo","home-index","pay","payfail","paysuccess"];
             ly.http.delete("/auth").then(() => {
                 this.user = null;
+                const start = window.location.href.split(".com/")[1].split(".")[0];
+                const returnUrl = window.location.href.split(".com/")[1];
+                if (filter.includes(start)) {
+                    window.location.href = "/login.html?returnUrl="+returnUrl;
+                }
+
             })
         }
     }

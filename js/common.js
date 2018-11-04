@@ -1,4 +1,5 @@
 
+
 // 字符串格式化
 String.prototype.format = function () {
     const args = arguments;

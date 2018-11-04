@@ -361,7 +361,9 @@
 	padding-left: 15px;
 	line-height: 2
 }
-
+.attr{
+	height: 80px;
+}
 .price {
 	font-size: 18px;
 	color: #c81623

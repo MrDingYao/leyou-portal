@@ -9,7 +9,13 @@
 
     <link rel="stylesheet" type="text/css" href="css/webbase.css" />
     <link rel="stylesheet" type="text/css" href="css/pages-getOrderInfo.css" />
+	<link rel="stylesheet" href="node_modules/element-ui/lib/theme-chalk/index.css">
+	<script src="./js/vue/vue.js"></script>
+	<script src="./js/axios.min.js"></script>
+	<script src="./js/common.js"></script>
+	<script src="node_modules/element-ui/lib/index.js"></script>
 </head>
+
 
 <body>
 	<!--head-->
@@ -17,7 +23,7 @@
 		<div class="top">
 			<shortcut />
 		</div>
-	
+
 	<div  class="cart py-container">
 		
 			<!--logoArea-->
@@ -32,84 +38,139 @@
 			</div>
 			<div class="checkout-steps">
 				<!--收件人信息-->
-				<div class="step-tit">
+				<!--<div class="step-tit">
 					<h5>收件人信息<span><a data-toggle="modal" data-target=".edit" data-keyboard="false" class="newadd">新增收货地址</a></span></h5>
-				</div>
+				</div>-->
 				<div class="step-cont">
-					<div class="addressInfo">
-						<ul class="addr-detail">
-							<li class="addr-item" v-for="(a,i) in addresses" :key="i">
-							  <div>
-								  <div :class="{con:true,name:true,selected:i === selectedAddress}"><a href="javascript:;" @click.stop="selectedAddress=i" >{{a.name}}<span title="点击取消选择"></span>&nbsp;</a></div>
-								<div class="con address">{{a.state + a.city + a.district + a.address}} <span>{{a.phone}}</span>
-									<span class="base" v-if="a.default">默认地址</span>
-									<span class="edittext"><a data-toggle="modal" data-target=".edit" data-keyboard="false" >编辑</a>&nbsp;&nbsp;<a href="javascript:;">删除</a></span>
-								</div>
-								<div class="clearfix"></div>
-							  </div>
+					<div >
+						<!-- 显示收货地址 -->
 
-							</li>
-						</ul>
+						<el-card class="box-card">
+
+							<div slot="header" class="clearfix">
+								<span>地址信息</span>
+								<el-button style="float: right; padding: 3px 0" type="text" @click="handleAdd">新增收货地址</el-button>
+							</div>
+
+							<!-- 有地址时显示地址表格 -->
+							<div v-for="a in addresses" :key="a.id" class="text item" v-show="hasAddress">
+								<el-row>
+									<el-col :span="11">
+
+										<el-button size="small" :icon="selectedAddress===a.id?'el-icon-check':''" @click="handleSelect(a)" :type="selectedAddress===a.id?'success':''">
+											{{a.name}}
+										</el-button>&nbsp;&nbsp;
+										{{a.areaAddress+' '+a.detailAddress+' '+a.phone}}
+										&nbsp;&nbsp;
+									</el-col>
+
+
+									<el-col :span="3">
+										<el-button type="text" size="small" @click="handleEdit(a)">编辑</el-button>
+										<el-button type="text" size="small" @click="handleDelete(a)">删除</el-button>
+									</el-col>
+									<el-col :span="3">
+										<el-button type="success" v-if="a.isDefault" plain size="small" :disabled="a.isDefault">默认地址</el-button>
+									</el-col>
+
+
+								</el-row>
+							</div>
+
+							<!-- 没有地址时显示警告信息 -->
+							<div v-show="!hasAddress">
+								<el-alert
+										title="您还没有保存过地址信息"
+										type="warning"
+										description="请点击新增地址按钮进行添加地址信息"
+										show-icon :closable="false">
+								</el-alert>
+							</div>
+						</el-card>
+
 						<!--添加地址-->
-                          <div  tabindex="-1" role="dialog" data-hasfoot="false" class="sui-modal hide fade edit">
-						  <div class="modal-dialog">
-						    <div class="modal-content">
-						      <div class="modal-header">
-						        <button type="button" data-dismiss="modal" aria-hidden="true" class="sui-close">×</button>
-						        <h4 id="myModalLabel" class="modal-title">添加收货地址</h4>
-						      </div>
-						      <div class="modal-body">
-						      	<form action="" class="sui-form form-horizontal">
-						      		 <div class="control-group">
-									    <label class="control-label">收货人：</label>
-									    <div class="controls">
-									      <input type="text" class="input-medium">
-									    </div>
-									  </div>
-									   
-									   <div class="control-group">
-									    <label class="control-label">详细地址：</label>
-									    <div class="controls">
-									      <input type="text" class="input-large">
-									    </div>
-									  </div>
-									   <div class="control-group">
-									    <label class="control-label">联系电话：</label>
-									    <div class="controls">
-									      <input type="text" class="input-medium">
-									    </div>
-									  </div>
-									   <div class="control-group">
-									    <label class="control-label">邮箱：</label>
-									    <div class="controls">
-									      <input type="text" class="input-medium">
-									    </div>
-									  </div>
-									   <div class="control-group">
-									    <label class="control-label">地址别名：</label>
-									    <div class="controls">
-									      <input type="text" class="input-medium">
-									    </div>
-									    <div class="othername">
-									    	建议填写常用地址：<a href="#" class="sui-btn btn-default">家里</a>　<a href="#" class="sui-btn btn-default">父母家</a>　<a href="#" class="sui-btn btn-default">公司</a>
-									    </div>
-									  </div>
-						      	</form>
-						      </div>
-						      <div class="modal-footer">
-						        <button type="button" data-ok="modal" class="sui-btn btn-primary btn-large">确定</button>
-						        <button type="button" data-dismiss="modal" class="sui-btn btn-default btn-large">取消</button>
-						      </div>
-						    </div>
-						  </div>
-						</div>
+
+						<el-dialog :title="isEdit ? '编辑收货地址' : '新增收货地址'" :visible.sync="showDialog" :before-close="handleClose" width="45%">
+
+							<el-form :model="address" status-icon :rules="rules" ref="address">
+
+
+								<el-form-item label="收货人" :label-width="formLabelWidth" prop="name" :label-width="formLabelWidth">
+
+									<el-col :span="8">
+										<el-input v-model="address.name" autocomplete="off" size="medium"></el-input>
+									</el-col>
+
+								</el-form-item>
+
+
+								<el-form-item label="所在地区" :label-width="formLabelWidth" prop="address">
+									<el-col :span="7">
+										<el-select v-model="address.areaAddress.province" placeholder="请选择省份" @change="selectP">
+											<el-option v-for="item in area.provinces" :key="item.id" :label="item.name" :value="item.name">
+											</el-option>
+										</el-select>
+									</el-col>
+
+									<el-col class="line" :span="1">&nbsp;</el-col>
+
+									<el-col :span="7">
+										<el-select v-model="address.areaAddress.city" placeholder="请选择市" @change="selectC">
+											<el-option v-for="item in area.cities" :key="item.id" :label="item.name" :value="item.name">
+											</el-option>
+										</el-select>
+									</el-col>
+
+									<el-col class="line" :span="1">&nbsp;</el-col>
+
+									<el-col :span="7">
+										<el-select v-model="address.areaAddress.downtown" placeholder="请选择县">
+											<el-option v-for="item in area.downtowns" :key="item.id" :label="item.name" :value="item.name">
+											</el-option>
+										</el-select>
+									</el-col>
+
+								</el-form-item>
+
+
+								<el-form-item label="详细地址" :label-width="formLabelWidth" prop="detailAddress">
+									<el-col :span="16">
+										<el-input v-model="address.detailAddress" autocomplete="off"></el-input>
+									</el-col>
+								</el-form-item>
+
+								<el-form-item label="联系电话" :label-width="formLabelWidth" prop="phone">
+									<el-col :span="16">
+										<el-input v-model="address.phone" autocomplete="off"></el-input>
+									</el-col>
+								</el-form-item>
+
+								<el-form-item label="邮编" :label-width="formLabelWidth" prop="email">
+									<el-col :span="16">
+										<el-input v-model="address.receiveZip" autocomplete="off"></el-input>
+									</el-col>
+								</el-form-item>
+
+
+							</el-form>
+							<div slot="footer" class="dialog-footer">
+								<el-button @click="handleClose">取 消</el-button>
+								<el-button type="primary" @click="handleSubmit('address')">保 存</el-button>
+								<el-button @click="resetForm('address')">重 置</el-button>
+							</div>
+						</el-dialog>
+
+
+
 						 <!--确认地址-->
 					</div>
+
 					<div class="hr"></div>
 					
 				</div>
 				<div class="hr"></div>
 				<!--支付和送货-->
+
 				<div class="payshipInfo">
 					<div class="step-tit">
 						<h5>支付方式</h5>
@@ -180,6 +241,7 @@
 				</div>
 			</div>
 		</div>
+		<!-- 返现和运费的显示 -->
 		<div class="order-summary">
 			<div class="static fr">
 				<div class="list">
@@ -196,74 +258,153 @@
 				</div>
 			</div>
 		</div>
+
+		<!-- 总价和地址的显示 -->
 		<div class="clearfix trade">
 			<div class="fc-price">应付金额:　<span class="price">¥{{ly.formatPrice(actualPay)}}</span></div>
-			<div class="fc-receiverInfo">
-				寄送至:{{addresses[selectedAddress].address}}
-				收货人：{{addresses[selectedAddress].name}} {{addresses[selectedAddress].phone}}
+			<div class="fc-receiverInfo" v-show="hasAddress">
+				寄送至:{{selected.areaAddress+selected.detailAddress}}
+				收货人：{{selected.name}} {{selected.phone}}
 			</div>
 		</div>
 		<div class="submit">
-			<a class="sui-btn btn-danger btn-xlarge" href="#" @click.prevent="submit">提交订单</a>
+			<!--<a class="sui-btn btn-danger btn-xlarge locked" href="#" @click.prevent="submit">提交订单</a>-->
+			<el-button class="btn-xlarge" type="danger" :disabled="!hasAddress" @click.prevent="submit">
+				提交订单
+			</el-button>
 		</div>
 	</div>
 
 	</div>
-	<script src="./js/vue/vue.js"></script>
-	<script src="./js/axios.min.js"></script>
-	<script src="./js/common.js"></script>
+
 	<script type="text/javascript">
         var orderInfoVm = new Vue({
             el:"#orderInfoApp",
-            data:{
-                ly,
-                addresses:[// 可选地址列表,假数据，需要从后台查询
-					{
-					    name:"社会我拓哥",// 收件人姓名
-						phone:"15800000000",// 电话
-						state:"上海",// 省份
-						city:"上海",// 城市
-						district:"浦东新区",// 区
-						address:"航头镇航头路18号传智播客 3号楼",// 街道地址
-						zipCode:"210000", // 邮编
-						default: true
-					},
-                    {
-                        name:"张三",// 收件人姓名
-                        phone:"13600000000",// 电话
-                        state:"北京",// 省份
-                        city:"北京",// 城市
-                        district:"朝阳区",// 区
-                        address:"天堂路 3号楼",// 街道地址
-                        zipCode:"100000", // 邮编
-                        default: false
+            data(){
+                // 手机号的校验规则
+                var checkPhone = (rule, value, callback) => {
+                    const regex = /^[1][3,4,5,7,8][0-9]{9}$/;
+                    if (!value) {
+                        return callback(new Error('手机号不能为空'));
+                    } else if (!regex.test(value)) {
+                        return callback(new Error("请输入正确的手机号"));
+                    } else {
+                        callback();
                     }
-				],
-				selectedAddress: 0,
-				carts:[],					// 要下单的商品的信息
-				order:{
-                    paymentType:1,			// 支付方式，默认是1微信
-					postFee:0,				// 邮费
-					discount:0				// 优惠
-				}
+                };
 
+                // 邮编的校验规则
+                var checkReceiveZip = (rule, value, callback) => {
+                    const regex = /^[0-9]{6}$/;
+                    if (!regex.test(value)) {
+                        return callback(new Error("请输入正确的邮编"));
+                    } else {
+                        callback();
+                    }
+                };
+
+                return {
+                    ly,
+                    addresses: [],					// 可选地址列表,需要从后台查询
+
+                    address: {                  // 地址
+                        id: "",
+                        name: "",
+                        phone: "",
+                        areaAddress: {
+                            province: "",
+                            city: "",
+                            downtown: ""
+                        },
+                        detailAddress: "",
+                        receiveZip: "",
+                        isDefault: 0
+                    },
+
+                    selectedAddress: 0,
+					selected:{},
+                    carts: [],					// 要下单的商品的信息
+                    order: {
+                        paymentType: 1,			// 支付方式，默认是1微信
+                        postFee: 0,				// 邮费
+                        discount: 0				// 优惠
+                    },
+
+                    isEdit: false,               // 是否是编辑还是新增地址
+                    showDialog: false,           // 新增地址弹窗显示
+                    formLabelWidth: '90px',
+                    allAreas: [],                   // 所有的省市区
+                    area: {
+                        provinces: [],               // 省信息数组
+                        cities: [],                  // 市信息数组
+                        downtowns: []                // 县信息数组
+                    },
+
+                    // 表单校验规则
+                    rules: {
+                        name: [
+                            {required: true, message: '请输入收货人名称', trigger: 'blur'},
+                            {min: 2, message: '长度不小于 2 个字符', trigger: ['blur', 'change']}
+                        ],
+                        detailAddress: [
+                            {required: true, message: '请输入详细地址', trigger: ['blur', 'change']}
+                        ],
+                        phone: [
+                            {validator: checkPhone, trigger: 'blur'}
+                        ],
+                        receiveZip: [
+                            {validator: checkReceiveZip, trigger: ['blur', 'change']}
+                        ]
+                    },
+
+					hasAddress:true					// 用户是否填写过地址信息
+                }
             },
 			components:{
                 shortcut: () => import("/js/pages/shortcut.js")
 			},
 
 			created(){
+                // 查询省市区信息
+                ly.http.get("user/address/area").then(({data}) => {
+                    this.allAreas = data;
+                    this.area.provinces = data.filter(c => c.pid === 0)
+                });
                 this.loadOrders()
-
 			},
 
 			methods:{
+                loadAddressData(){
+                    // 从后台查询用户的地址信息
+                    ly.http.get("user/address").then(({data}) => {
+                        // 判断该用户是否填写过地址信息
+                        if (data) {
+                            this.addresses = data;
+                            // 选择的地址
+                            this.selected = this.addresses.find(a => a.isDefault) || this.addresses[0];
+                            // 找到默认选择的地址
+                            this.selectedAddress = this.selected.id;
+                            this.hasAddress = true;
+                        } else {
+							// 如果没有填写过地址
+							this.hasAddress = false;
+                        }
+
+
+                    });
+				},
+
+
                 // 先判断是否登陆
                 loadOrders(){
 					ly.verifyUser().then(() => {
-						// 从后台查询用户的收件人信息
+						this.loadAddressData();
 
-						this.carts = ly.store.get("selectedCarts");
+                        // 如果购物车中没有东西
+                        if (!ly.store.get("selectedCarts").length) {
+							window.location.href = "/index.html";
+                        }
+                        this.carts = ly.store.get("selectedCarts");
 
 					}).catch(() => {
 					    // 未登录，跳转至登陆页面
@@ -273,46 +414,188 @@
 
 				// 提交订单
 				submit(){
+                    ly.verifyUser().then(() => {
+                        const order = {
+                            paymentType:this.order.paymentType,
+                            orderDetails:[],
+                            addressId:this.selectedAddress,
+                            invoiceType: 0,				// 发票类型
+                            sourceType:2, 				// 订单来源
+                            postFee:0,					// 邮费
+                        };
+                        this.carts.forEach(c => order.orderDetails.push({skuId:c.skuId,num:c.num,ownSpec:c.ownSpec}));
 
-                    const addr = this.addresses[this.selectedAddress];
-					const obj = {
-                        receiver:addr.name,
-                        receiverMobile:addr.phone,
-                        receiverState:addr.state,
-                        receiverCity:addr.city,
-                        receiverDistrict:addr.district,
-                        receiverAddress:addr.address,
-                        receiverZip:addr.zipCode
-					};
-					Object.assign(this.order,obj,{
-                        orderDetails:this.carts,
-                        totalPay:this.totalPay,
-                        actualPay:this.actualPay
-					});
-					console.log(this.order);
-					ly.http.post("/order/order",this.order,{
-					    // 由于js自动对Long数值进行JSON.parse转换，数值太大，会有精度丢失
-						// 添加一个回调函数，直接返回返回值，不进行转换
-					    transformResponse: [
-					        function (data) {
-								return data;
-                            }
-						]
-					}).then(({data}) => {
-					    // 点击提交，发送请求去后台删除购物车中这些订单中的商品
-						const skuIds = this.carts.map(c => c.skuId).join(",");
-						ly.http.delete("cart/delete?ids="+skuIds).then(() => {
-						    // 清除localStorage中的selectedCarts
-							ly.store.del("selectedCarts");
-						    // 删除成功跳转至支付页面
-                            window.location.href = "/pay.html?orderId=" + data;
-						}).catch(() => {
-						    alert("抱歉，服务器繁忙")
-						})
+                        console.log(order);
+                        ly.http.post("/order/order",order,{
+                            // 由于js自动对Long数值进行JSON.parse转换，数值太大，会有精度丢失
+                            // 添加一个回调函数，直接返回返回值，不进行转换
+                            transformResponse: [
+                                function (data) {
+                                    return data;
+                                }
+                            ]
+                        }).then(({data}) => {
+                            // 点击提交，发送请求去后台删除购物车中这些订单中的商品
+                            const skuIds = this.carts.map(c => c.skuId).join(",");
+                            ly.http.delete("cart/delete?ids="+skuIds).then(() => {
+                                // 清除localStorage中的selectedCarts
+                                ly.store.del("selectedCarts");
+                                // 删除成功跳转至支付页面
+                                window.location.href = "/pay.html?orderId=" + data;
+                            }).catch(() => {
+                                alert("抱歉，服务器繁忙")
+                            })
 
+                        }).catch(() => {
+                            alert("服务器繁忙")
+                        })
 					}).catch(() => {
-							alert("服务器繁忙")
+                        location.href = "/login.html?returnUrl=" + location.href;
 					})
+				},
+
+                // 选择省份的change事件
+                selectP() {
+                    this.area.cities = this.allAreas.filter(c =>
+                        c.pid === (this.allAreas.find(c => c.name === this.address.areaAddress.province).id)
+                    ) || [];
+                    this.area.downtowns = [];
+                    this.address.areaAddress.city = "";
+                    this.address.areaAddress.downtown = "";
+                    console.log(this.area.cities)
+                },
+
+                // 选择市的change事件
+                selectC() {
+                    this.area.downtowns = this.allAreas.filter(c =>
+                        c.pid === (this.allAreas.find(c => c.name === this.address.areaAddress.city).id)
+                    ) || [];
+                    this.address.areaAddress.downtown = "";
+                    console.log(this.area.downtowns)
+                },
+
+                // 提交地址
+                handleSubmit(formName) {
+                    this.$refs[formName].validate((valid) => {
+                        if (valid) {
+                            // 判断是否登陆
+                            ly.verifyUser().then(() => {
+                                const {areaAddress,...address} = this.address;
+                                //Object.assign(address, this.address);
+                                address.areaAddress = Object.values(this.address.areaAddress).join("-");
+                                console.log(address);
+                                // 发送请求
+                                ly.http({
+                                    method:this.isEdit ? "put" : "post",
+                                    url:"user/address",
+                                    data:address
+                                }).then(() => {
+                                    this.$message.success("保存成功");
+                                    this.loadAddressData();
+                                }).catch(() => {
+                                    this.$message.error("服务器异常,保存失败")
+                                });
+                                this.showDialog = false;
+                                this.resetForm("address")
+                            }).catch(() => {
+                                location.href = "/login.html?returnUrl=" + location.href;
+                            })
+
+                        } else {
+                            console.log('error submit!!');
+                            return false;
+                        }
+                    });
+                },
+
+                // 编辑地址的方法
+                handleEdit(row) {
+                    this.isEdit = true;
+                    this.showDialog = true;
+                    const {areaAddress,...params} = row;
+                    Object.assign(this.address,params);
+                    const area = areaAddress.split("-").map(c => c.trim());
+                    this.address.areaAddress.province = area[0];
+                    this.address.areaAddress.city = area[1];
+                    this.address.areaAddress.downtown = area[2];
+                },
+
+                // 添加地址的方法
+                handleAdd() {
+                    this.address = {                  // 地址
+                        name: "",
+                        phone: "",
+                        areaAddress: {
+                            province: "",
+                            city: "",
+                            downtown: ""
+                        },
+                        detailAddress: "",
+                        receiveZip: "",
+                        isDefault:0
+                    };
+                    this.isEdit = false;
+                    //this.resetForm("address");
+                    this.showDialog = true;
+                },
+
+                // 删除地址的方法
+                handleDelete(row){
+                    ly.verifyUser().then(() => {
+                        this.$confirm("确定删除该地址?").then(() => {
+                            ly.http.delete("user/address/" + row.id).then(() => {
+                                this.loadAddressData();
+                                this.$message.success("删除成功")
+                            }).catch(() => {
+                                this.$message.error("服务器异常,删除失败")
+                            })
+                        }).catch(() => {
+                            this.$message.info("删除操作已取消");
+                        })
+                    }).catch(() => {
+                        location.href = "/login.html?returnUrl=" + location.href;
+                    })
+                },
+
+                // 重置弹窗的内容
+                resetForm(formName) {
+                    this.$refs[formName].resetFields();
+                    this.address = {                  // 地址
+                        name: "",
+                        phone: "",
+                        areaAddress: {
+                            province: "",
+                            city: "",
+                            downtown: ""
+                        },
+                        detailAddress: "",
+                        receiveZip: "",
+                        isDefault:0
+                    };
+                },
+
+                // 关闭弹窗方法
+                handleClose() {
+                    this.showDialog = false;
+                    this.address = {                  // 地址
+                        name: "",
+                        phone: "",
+                        areaAddress: {
+                            province: "",
+                            city: "",
+                            downtown: ""
+                        },
+                        detailAddress: "",
+                        receiveZip: "",
+                        isDefault:0
+                    };
+                    this.loadAddressData();
+                },
+
+				// 选择地址的方法
+                handleSelect(a){
+                    this.selectedAddress = a.id;
+                    this.selected = a;
 				}
 			},
 
@@ -331,6 +614,7 @@
 				actualPay(){
                     return this.totalPay - this.order.postFee - this.order.discount
 				}
+
 			}
         });
 	</script>

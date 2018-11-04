@@ -9,6 +9,13 @@
 
     <link rel="stylesheet" type="text/css" href="css/webbase.css"/>
     <link rel="stylesheet" type="text/css" href="css/pages-cart.css"/>
+    <link rel="stylesheet" href="node_modules/element-ui/lib/theme-chalk/index.css">
+
+
+    <script src="./js/vue/vue.js"></script>
+    <script src="./js/axios.min.js"></script>
+    <script src="./js/common.js"></script>
+    <script src="node_modules/element-ui/lib/index.js"></script>
 </head>
 
 <body>
@@ -44,7 +51,7 @@
                         <div class="cart-list">
 
                             <!-- 遍历carts进行购物车中的商品的渲染 -->
-                            <ul class="goods-list yui3-g" v-for="(cart,i) in carts" :key="i">
+                            <ul class="goods-list yui3-g" v-for="(cart,i) in enableCarts" :key="i">
                                 <li class="yui3-u-1-24">
                                     <input type="checkbox" :value="cart" v-model="selected" />
                                 </li>
@@ -79,14 +86,26 @@
                                 </li>
                                 <li class="yui3-u-1-8">
                                     <a @click.prevent="deleteCart(i)" href="#none">删除</a><br />
-                                    <a href="#none" @click.prevent="toMyFavorite">移到我的关注</a>
+                                    <a href="#none" @click.prevent="toMyFavorite(cart,i)">移到我的关注</a>
                                 </li>
                             </ul>
+
                         </div>
                     </div>
                 </div>
-
             </div>
+
+            <!-- 当没有商品存在时的提示信息 -->
+            <div v-show="!enableCarts.length">
+                <el-alert style="height: 60px"
+                        show-icon
+                        title="购物车里空空如也哦!"
+                        type="info" center
+                        close-text="知道了,去浏览"
+                        @close="toIndex">
+                </el-alert>
+            </div>
+
             <div class="cart-tool">
                 <div class="select-all">
                     <input type="checkbox" v-model="selectAll" value=""/>
@@ -98,7 +117,7 @@
                     <a href="javascript:void(0)">清除下柜商品</a>
                 </div>
                 <div class="toolbar">
-                    <div class="chosed">已选择<span>0</span>件商品</div>
+                    <div class="chosed">已选择<span>{{totalCount}}</span>件商品</div>
                     <div class="sumprice">
                         <span><em>总价（不含运费） ：</em><i class="summoney">{{ly.formatPrice(totalPrice)}}</i></span>
                         <span><em>已节省：</em><i>-¥20.00</i></span>
@@ -109,10 +128,12 @@
                 </div>
             </div>
             <div class="clearfix"></div>
-            <div class="deled">
-                <span>已删除商品，您可以重新购买或加关注：</span>
+
+            <!-- 被删除商品的显示区 -->
+            <div class="deled" v-show="deleted.length">
+                <el-alert title="已删除商品，您可以重新购买或加关注：" type="warning" :closable="false" center show-icon></el-alert>
                 <div class="cart-list del">
-                    <ul class="goods-list yui3-g" v-for="c in deleted" :key="c.skuId">
+                    <ul class="goods-list yui3-g" v-for="(c,i) in deleted" :key="c.skuId">
                         <li class="yui3-u-1-2">
                             <div class="good-item">
                                 <div class="item-msg" v-text="c.title"></div>
@@ -124,11 +145,32 @@
                         </li>
                         <li class="yui3-u-1-8">
                             <a href="javascript:void(0)" @click="backToCarts(c)">重新购买</a>
-                            <a href="javascript:void(0)" @click="toMyFavorite">移到我的关注</a>
+                            <a href="javascript:void(0)" @click.prevent="toMyFavorite(c,i)">移到我的关注</a>
                         </li>
                     </ul>
                 </div>
             </div>
+
+            <hr class="layui-bg-blue">
+
+            <!-- 被下架商品的显示区 -->
+            <div v-show="unenableCarts.length">
+                <el-alert title="太遗憾了,这些商品已经被下架了" type="info" :closable="false" center show-icon></el-alert>
+                <div class="cart-list del">
+                    <ul class="goods-list yui3-g" v-for="c in unenableCarts" :key="c.skuId">
+                        <li class="yui3-u-1-2">
+                            <div class="good-item">
+                                <div class="item-msg" v-text="c.title"></div>
+                            </div>
+                        </li>
+                        <li class="yui3-u-1-6"><span class="price" v-text="ly.formatPrice(c.price)"></span></li>
+                        <li class="yui3-u-1-6">
+                            <span class="number" v-text="c.num"></span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
             <div class="liked">
                 <ul class="sui-nav nav-tabs">
                     <li class="active">
@@ -269,9 +311,7 @@
     </div>
 
 </div>
-<script src="./js/vue/vue.js"></script>
-<script src="./js/axios.min.js"></script>
-<script src="./js/common.js"></script>
+
 <script type="text/javascript">
 
     var cartVm = new Vue({
@@ -306,7 +346,6 @@
                     const localCarts = ly.store.get("carts");
                     // 如果本地存有购物车信息，则发送至后台保存，然后删除本地的
                     if (localCarts) {
-                        console.log(localCarts);
                         ly.http.post("/cart/addLocal", localCarts)
                             .then(() => {
                                 ly.store.del("carts");
@@ -321,13 +360,15 @@
                     this.carts = ly.store.get("carts") || [];
                     // 当页面加载好后，默认全选商品
                     this.selected = this.carts;
+
+
                 })
             },
 
             getCartList(){
                 // 去后台redis中查询购物车信息
                 ly.http.get("/cart").then(({data}) => {
-                    this.carts = data;
+                    this.carts = data || [];
                     this.selectAll = true;
                 }).catch(() => {
                     alert("服务器繁忙，请稍后再试")
@@ -366,6 +407,7 @@
                     // 未登录，修改本地数据
                     ly.store.set("carts",this.carts)
                 })
+
             },
 
             // 删除商品方法
@@ -408,7 +450,8 @@
                 this.deleted = this.deleted.filter(c => c.skuId !== cart.skuId);
                 ly.verifyUser().then(() => {
                     // 登陆，则添加至redis
-                    ly.http.post("/cart",{'skuId':cart.id,'num':cart.num});
+                    ly.http.post("/cart",{'skuId':cart.skuId,'num':cart.num});
+                    this.loadCarts();
                 }).catch(() => {
                     // 未登录,则添加至localStorage,并删除sessionStorage中的
                     this.carts.push(cart);
@@ -419,15 +462,51 @@
 
             },
 
-            toMyFavorite(){
+            toIndex(){
+                location.href = "/index.html";
+            },
 
-            }
+            //购物车商品添加到我的收藏
+            toMyFavorite(cart,i){
+                const {image,num, ...rest}=cart;
+                var collect={};
+                Object.assign(collect,rest);
+                collect.image=image;
+                ly.http.get("auth/verify")
+                    .then(
+                        ly.http.post("/cart/addCollect",collect)
+                            .then(()=>{
+                                this.$message.success("添加到我的收藏成功")
+                            }).catch(() => {
+                            this.$message.error("服务器异常,添加失败")
+                        })
+                    )
+                    .catch(resp => {
+                        //未登录
+                        window.location.href = "http://www.leyou.com/login.html?returnUrl="+location.href;
+                    })
+            },
         },
 
         computed:{
+            // 计算没被下架的商品
+            enableCarts(){
+                return this.carts.filter(c => c.enable);
+            },
+
+            // 计算被下架的商品
+            unenableCarts(){
+                return this.carts.filter(c => !c.enable)
+            },
+
             // 计算总价
             totalPrice(){
-                return this.selected.map(c => c.price * c.num).reduce((p1,p2) => p1 + p2,0);
+                return this.selected ? this.selected.map(c => c.price * c.num).reduce((p1,p2) => p1 + p2,0) : 0;
+            },
+
+            // 计算总数量
+            totalCount(){
+                return this.selected ? this.selected.map(c => c.num).reduce((n1,n2) => n1 + n2,0) : 0;
             }
         },
 
@@ -445,7 +524,7 @@
 <script type="text/javascript" src="js/plugins/jquery.easing/jquery.easing.min.js"></script>
 <script type="text/javascript" src="js/plugins/sui/sui.min.js"></script>
 <script type="text/javascript" src="js/widget/nav.js"></script>
-
+<script src="node_modules/layui-src/dist/layui.all.js"></script>
 </body>
 
 </html>

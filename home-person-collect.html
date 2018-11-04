@@ -10,46 +10,38 @@
 
     <link rel="stylesheet" type="text/css" href="css/webbase.css" />
     <link rel="stylesheet" type="text/css" href="css/pages-seckillOrder.css" />
+    <link rel="stylesheet" href="node_modules/element-ui/lib/theme-chalk/index.css">
 </head>
 
 <body>
-   	<!--页面顶部白条条，由js动态加载-->
-	<script type="text/javascript" src="plugins/jquery/jquery.min.js"></script>
-	<div class="nav-bottom"></div>
-    <script type="text/javascript">$(".nav-bottom").load("top.html");</script>
 
 <script type="text/javascript" src="js/plugins/jquery/jquery.min.js"></script>
-<script type="text/javascript">
-$(function(){
-	$("#service").hover(function(){
-		$(".service").show();
-	},function(){
-		$(".service").hide();
-	});
-	$("#shopcar").hover(function(){
-		$("#shopcarlist").show();
-	},function(){
-		$("#shopcarlist").hide();
-	});
-
-})
-</script>
 <script type="text/javascript" src="js/plugins/jquery.easing/jquery.easing.min.js"></script>
 <script type="text/javascript" src="js/plugins/sui/sui.min.js"></script>
 <script type="text/javascript" src="js/plugins/jquery-placeholder/jquery.placeholder.min.js"></script>
 <script type="text/javascript" src="js/widget/nav.js"></script>
+<script src="./js/vue/vue.js"></script>
+<script src="./js/axios.min.js"></script>
+<script src="./js/common.js"></script>
+<script src="./js/plugins/jquery/jquery.cookie.js"></script>
+<script src="node_modules/element-ui/lib/index.js"></script>
 </body>
     <!--header-->
     <div id="account">
+
+        <div id="nav-bottom">
+            <ly-top/>
+        </div>
+
         <div class="py-container">
             <div class="yui3-g collect">
                 <!--左侧列表-->
                 <div class="yui3-u-1-6 list">
 
                     <div class="person-info">
-                        <div class="person-photo"><img src="img/_/photo.png" alt=""></div>
+                        <div class="person-photo"><img :src="imageUrl || 'img/_/photo.png'" width="50px" height="50px"></div>
                         <div class="person-account">
-                            <span class="name">Michelle</span>
+                            <span class="name">{{user.username}}</span>
                             <span class="safe">账户安全</span>
                         </div>
                         <div class="clearfix"></div>
@@ -83,90 +75,9 @@ $(function(){
                 <div class="yui3-u-5-6 goods">
                     <div class="body">                   
                             <h4>收藏的商品</h4>
-                            <div class="goods-list">
-                                <ul class="yui3-g"  id="goods-list">
-                                    <li class="yui3-u-1-4">
-                                        <div class="list-wrap">
-                                            <div class="p-img"><img src="img/_/t.jpg" alt=''></div>
-                                            <div class="price"><strong><em>¥</em> <i>139.00</i></strong></div>
-                                            <div class="attr"><em>Apple苹果iPhone 6s 32G金色 移动联通电信4G手机</em></div>
-                                            <div class="cu"><em><span>促</span>满一件可参加超值换购</em></div>
-                                            <div class="operate">
-                                                <a href="success-cart.html" target="_blank" class="sui-btn btn-bordered btn-danger">加入购物车</a>
-                                                <a href="javascript:void(0);" class="sui-btn btn-bordered">对比</a>
-                                                <a href="javascript:void(0);" class="sui-btn btn-bordered">降价通知</a>
-                                            </div>
-                                        </div>
-                                    </li >
-                                      <li class="yui3-u-1-4">
-                                        <div class="list-wrap">
-                                            <div class="p-img"><img src="img/_/t.jpg" alt=''></div>
-                                            <div class="price"><strong><em>¥</em> <i>139.00</i></strong></div>
-                                            <div class="attr"><em>Apple苹果iPhone 6s 32G金色 移动联通电信4G手机</em></div>
-                                            <div class="cu"><em><span>促</span>满一件可参加超值换购</em></div>
-                                            <div class="operate">
-                                                <a href="success-cart.html" target="_blank" class="sui-btn btn-bordered btn-danger">加入购物车</a>
-                                                <a href="javascript:void(0);" class="sui-btn btn-bordered">对比</a>
-                                                <a href="javascript:void(0);" class="sui-btn btn-bordered">降价通知</a>
-                                            </div>
-                                        </div>
-                                    </li >
-                                      <li class="yui3-u-1-4">
-                                        <div class="list-wrap">
-                                            <div class="p-img"><img src="img/_/t.jpg" alt=''></div>
-                                            <div class="price"><strong><em>¥</em> <i>139.00</i></strong></div>
-                                            <div class="attr"><em>Apple苹果iPhone 6s 32G金色 移动联通电信4G手机</em></div>
-                                            <div class="cu"><em><span>促</span>满一件可参加超值换购</em></div>
-                                            <div class="operate">
-                                                <a href="success-cart.html" target="_blank" class="sui-btn btn-bordered btn-danger">加入购物车</a>
-                                                <a href="javascript:void(0);" class="sui-btn btn-bordered">对比</a>
-                                                <a href="javascript:void(0);" class="sui-btn btn-bordered">降价通知</a>
-                                            </div>
-                                        </div>
-                                    </li >
-                                      <li class="yui3-u-1-4">
-                                        <div class="list-wrap">
-                                            <div class="p-img"><img src="img/_/t.jpg" alt=''></div>
-                                            <div class="price"><strong><em>¥</em> <i>139.00</i></strong></div>
-                                            <div class="attr"><em>Apple苹果iPhone 6s 32G金色 移动联通电信4G手机</em></div>
-                                            <div class="cu"><em><span>促</span>满一件可参加超值换购</em></div>
-                                            <div class="operate">
-                                                <a href="success-cart.html" target="_blank" class="sui-btn btn-bordered btn-danger">加入购物车</a>
-                                                <a href="javascript:void(0);" class="sui-btn btn-bordered">对比</a>
-                                                <a href="javascript:void(0);" class="sui-btn btn-bordered">降价通知</a>
-                                            </div>
-                                        </div>
-                                    </li >
-                                      <li class="yui3-u-1-4">
-                                        <div class="list-wrap">
-                                            <div class="p-img"><img src="img/_/t.jpg" alt=''></div>
-                                            <div class="price"><strong><em>¥</em> <i>139.00</i></strong></div>
-                                            <div class="attr"><em>Apple苹果iPhone 6s 32G金色 移动联通电信4G手机</em></div>
-                                            <div class="cu"><em><span>促</span>满一件可参加超值换购</em></div>
-                                            <div class="operate">
-                                                <a href="success-cart.html" target="_blank" class="sui-btn btn-bordered btn-danger">加入购物车</a>
-                                                <a href="javascript:void(0);" class="sui-btn btn-bordered">对比</a>
-                                                <a href="javascript:void(0);" class="sui-btn btn-bordered">降价通知</a>
-                                            </div>
-                                        </div>
-                                    </li >
-                                      <li class="yui3-u-1-4">
-                                        <div class="list-wrap">
-                                            <div class="p-img"><img src="img/_/t.jpg" alt=''></div>
-                                            <div class="price"><strong><em>¥</em> <i>139.00</i></strong></div>
-                                            <div class="attr"><em>Apple苹果iPhone 6s 32G金色 移动联通电信4G手机</em></div>
-                                            <div class="cu"><em><span>促</span>满一件可参加超值换购</em></div>
-                                            <div class="operate">
-                                                <a href="success-cart.html" target="_blank" class="sui-btn btn-bordered btn-danger">加入购物车</a>
-                                                <a href="javascript:void(0);" class="sui-btn btn-bordered">对比</a>
-                                                <a href="javascript:void(0);" class="sui-btn btn-bordered">降价通知</a>
-                                            </div>
-                                        </div>
-                                    </li >
-                                </ul>
-                            </div>
-                      
-                        
+
+                        <collect/>
+
                         <!--猜你喜欢-->
                         <div class="like-title">
                             <div class="mt">
@@ -266,4 +177,53 @@ $(function(){
 	<script type="text/javascript">$(".footer").load("foot.html");</script>
 	<!--页面底部END-->
 
+<script type="text/javascript">
+    var vm= new Vue({
+        el: "#account",
+        data:{
+            ly,
+            user:{},
+            imageUrl:''
+        },
+
+        created(){
+            ly.verifyUser().then(() => {
+                ly.http.get("/auth/verify").then(resp => {
+                    this.user = resp.data;
+                });
+                ly.http.get("user/userInfo").then(({data}) => {
+                    this.imageUrl = data ? data.image : '';
+                })
+
+            }).catch(() => this.gotoLogin())
+        },
+        methods:{
+
+            gotoLogin() {
+                window.location = "login.html?returnUrl=" + window.location;
+            }
+        },
+        components:{
+            collect: ()=>import("/js/pages/person-collect.js"),
+            lyTop: () => import("./js/pages/top.js")
+        }
+    })
+
+</script>
+
+<script type="text/javascript">
+    $(function(){
+        $("#service").hover(function(){
+            $(".service").show();
+        },function(){
+            $(".service").hide();
+        });
+        $("#shopcar").hover(function(){
+            $("#shopcarlist").show();
+        },function(){
+            $("#shopcarlist").hide();
+        });
+
+    })
+</script>
 </html>

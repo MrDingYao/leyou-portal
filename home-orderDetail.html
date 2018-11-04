@@ -7,55 +7,91 @@
     <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />
     <title>订单详情</title>
      <link rel="icon" href="assets/img/favicon.ico">
+    <link href='https://fonts.cat.net/css?family=Roboto:300,400,500,700|Material+Icons' rel="stylesheet">
 
     <link rel="stylesheet" type="text/css" href="css/webbase.css" />
     <link rel="stylesheet" type="text/css" href="css/pages-seckillOrder.css" />
+    <link rel="stylesheet" href="node_modules/element-ui/lib/theme-chalk/index.css">
+
+    <script type="text/javascript" src="js/plugins/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="js/plugins/jquery.easing/jquery.easing.min.js"></script>
+    <script type="text/javascript" src="js/plugins/sui/sui.min.js"></script>
+    <script type="text/javascript" src="js/plugins/jquery-placeholder/jquery.placeholder.min.js"></script>
+    <script type="text/javascript" src="js/widget/nav.js"></script>
+    <script src="./js/vue/vue.min.js"></script>
+    <script src="node_modules/element-ui/lib/index.js"></script>
+    <script src="./js/axios.min.js"></script>
+    <script src="./js/common.js"></script>
+
 </head>
 
 <body>
-    
+
+<div id="account">
     <!--页面顶部白条条，由js动态加载-->
-	<script type="text/javascript" src="plugins/jquery/jquery.min.js"></script>
-	<div class="nav-bottom"></div>
-    <script type="text/javascript">$(".nav-bottom").load("top.html");</script>
-
-<script type="text/javascript" src="js/plugins/jquery/jquery.min.js"></script>
-<script type="text/javascript">
-$(function(){
-	$("#service").hover(function(){
-		$(".service").show();
-	},function(){
-		$(".service").hide();
-	});
-	$("#shopcar").hover(function(){
-		$("#shopcarlist").show();
-	},function(){
-		$("#shopcarlist").hide();
-	});
-
-})
-</script>
-<script type="text/javascript" src="js/plugins/jquery.easing/jquery.easing.min.js"></script>
-<script type="text/javascript" src="js/plugins/sui/sui.min.js"></script>
-<script type="text/javascript" src="js/plugins/jquery-placeholder/jquery.placeholder.min.js"></script>
-<script type="text/javascript" src="js/widget/nav.js"></script>
-</body>
+    <div class="nav-bottom">
+        <ly-top/>
+    </div>
     <!--header-->
-    <div id="account">
+    <div >
+
+
+        <!-- 内容 -->
         <div class="py-container">
             <div class="yui3-g home">
                 <!--左侧列表-->
                 <div class="yui3-u-1-6 list">
 
-                    <div class="person-info">
+                   <!-- <div class="person-info">
                         <div class="person-photo"><img src="img/_/photo.png" alt=""></div>
                         <div class="person-account">
                             <span class="name">Michelle</span>
                             <span class="safe">账户安全</span>
                         </div>
                         <div class="clearfix"></div>
+                    </div>-->
+                    <div>
+                        <img src="img/like1.png"/>
+                        <div class="intro">
+                            <i>Apple苹果iPhone 6s (A1699)</i>
+                        </div>
+                        <div class="money">
+                            <span>$29.00</span>
+                        </div>
+                        <div class="incar">
+                            <a href="/cart.html" class="sui-btn btn-bordered btn-xlarge btn-default"><i
+                                    class="car"></i><span class="cartxt">加入购物车</span></a>
+                        </div>
                     </div>
-                     <div class="list-items">
+
+                    <div>
+                        <img src="img/like1.png"/>
+                        <div class="intro">
+                            <i>Apple苹果iPhone 6s (A1699)</i>
+                        </div>
+                        <div class="money">
+                            <span>$29.00</span>
+                        </div>
+                        <div class="incar">
+                            <a href="/cart.html" class="sui-btn btn-bordered btn-xlarge btn-default"><i
+                                    class="car"></i><span class="cartxt">加入购物车</span></a>
+                        </div>
+                    </div>
+
+                    <div>
+                        <img src="img/like1.png"/>
+                        <div class="intro">
+                            <i>Apple苹果iPhone 6s (A1699)</i>
+                        </div>
+                        <div class="money">
+                            <span>$29.00</span>
+                        </div>
+                        <div class="incar">
+                            <a href="/cart.html" class="sui-btn btn-bordered btn-xlarge btn-default"><i
+                                    class="car"></i><span class="cartxt">加入购物车</span></a>
+                        </div>
+                    </div>
+                     <!--<div class="list-items">
                         <dl>
 							<dt><i>·</i> 订单中心</dt>
 							<dd ><a href="home-index.html"  class="list-active" >我的订单</a></dd>
@@ -78,8 +114,10 @@ $(function(){
 							<dd><a href="home-setting-address.html"  >地址管理</a></dd>
 							<dd><a href="home-setting-safe.html" >安全管理</a></dd>
 						</dl>
-                    </div>
+                    </div>-->
                 </div>
+
+
                 <!--右侧主内容-->
                 <div class="yui3-u-5-6">
                     <div class="body">
@@ -87,76 +125,80 @@ $(function(){
                             <h4>订单详情</h4>
                             <div class="order-bar">
                                 <div class="sui-steps-round steps-round-auto steps-4">
-                                    <div class="finished">
+                                    <div :class="currentClass(1)">
                                         <div class="wrap">
                                         <div class="round">1</div>
                                         <div class="bar"></div>
                                         </div>
                                         <label>
                                             <span>提交订单</span>
-                                            <span>2016-06-27</span>
-                                            <span>13:03:53</span>
+                                            <span>{{ly.formatDate(order.createTime,'yyyy-MM-dd')}}</span>
+                                            <span>{{ly.formatDate(order.createTime,'hh:mm:ss')}}</span>
                                         </label>
                                     </div>
-                                    <div class="current">
+                                    <div :class="currentClass(2)">
                                         <div class="wrap">
                                         <div class="round">2</div>
                                         <div class="bar"></div>
                                         </div>
                                         <label>
                                             <span>付款成功</span>
-                                            <span>2016-06-27</span>
-                                            <span>13:03:53</span>
+                                            <span v-if="order.status >= 2">{{formatDate(order.orderStatus.paymentTime,'yyyy-MM-dd')}}</span>
+                                            <span v-if="order.status >= 2">{{formatDate(order.orderStatus.paymentTime,'hh:mm:ss')}}</span>
                                         </label>
                                     </div>
-                                    <div class="todo">
+                                    <div :class="currentClass(3)">
                                         <div class="wrap">
                                         <div class="round">3</div>
                                         <div class="bar"></div>
                                         </div>
                                         <label>
                                             <span>发货</span>
-                                            <span>2016-06-27</span>
-                                            <span>13:03:53</span>
+                                            <span v-if="order.status >= 2">{{formatDate(order.orderStatus.consignTime,'yyyy-MM-dd')}}</span>
+                                            <span v-if="order.status >= 2">{{formatDate(order.orderStatus.consignTime,'hh:mm:ss')}}</span>
                                         </label>
                                     </div>
-                                    <div class="todo">
+                                    <div :class="currentClass(4)">
                                         <div class="wrap">
                                         <div class="round">4</div>
                                         <div class="bar"></div>
                                         </div>
                                         <label>
                                             <span>确认收货</span>
-                                            <span>2016-06-27</span>
-                                            <span>13:03:53</span>
+                                            <span v-if="order.status >= 3">{{formatDate(order.orderStatus.endTime,'yyyy-MM-dd')}}</span>
+                                            <span v-if="order.status >= 3">{{formatDate(order.orderStatus.endTime,'hh:mm:ss')}}</span>
                                         </label>
                                     </div>
                                     
-                                    <div class="todo last">
+                                    <div :class="currentClass(5)">
                                         <div class="wrap">
                                         <div class="round">5</div>
                                         </div>
                                         <label>
                                             <span>评价晒单</span>
-                                            <span>2016-06-27</span>
-                                            <span>13:03:53</span>
+                                            <span v-if="order.status >= 4">{{formatDate(order.orderStatus.commentTime,'yyyy-MM-dd')}}</span>
+                                            <span v-if="order.status >= 4">{{formatDate(order.orderStatus.commentTime,'hh:mm:ss')}}</span>
                                         </label>
                                     </div>
+
                                     </div>
                             </div>
                             <div class="order-state">
-                                <p>当前订单状态：<span class="red">已发货</span></p>
-                                <p>还剩06天00小时 自动确认收货</p>
+                                <p>当前订单状态：<span class="red">{{optionStatus(order.status)}}</span></p>
+                                <p v-if="order.status===3">
+                                    {{'还剩 ' + calculateTime(order.orderStatus.consignTime) + ' 自动确认收货'}}
+                                </p>
                             </div>
                         </div>
                         <div class="order-info">
                             <h5>订单信息</h5>
-                            <p>收货地址：神茶减肥茶就观察及噶盘滚啊  </p>
-                            <p>订单单号：178789758976986</p>
-                            <p>下单时间：2017-06-04 09：03：03</p>
-                            <p>支付时间：2017-06-05  09：03：03</p>
-                            <p>支付方式：微信</p>
-                            <p>发货时间：201707-06-06 09：03：03</p>
+                            <p>{{'收货人: ' + order.buyerNick}}</p>
+                            <p>{{'收货地址：' + order.receiverState+' '+order.receiverCity+' '+order.receiverDistrict+order.receiverAddress  }}</p>
+                            <p>{{'订单单号：' + order.orderId}}</p>
+                            <p>{{'下单时间：' + ly.formatDate(order.createTime)}}</p>
+                            <p v-if="order.status > 1">{{'支付时间：' + ly.formatDate(order.orderStatus.paymentTime)}}</p>
+                            <p v-if="order.status > 1">支付方式：微信</p>
+                            <p v-if="order.status > 2">{{'发货时间：' + ly.formatDate(order.orderStatus.consignTime)}}</p>
                         </div>
                         <div class="order-goods">
                             <table class="sui-table">
@@ -168,34 +210,36 @@ $(function(){
                                         <th class="center" >状态</th>
                                     </thead>                                   
                              
-                                <tbody>                               
+                                <tbody v-for="d in order.orderDetails">
                                     <tr>
-                                        <td colspan="5">订单编号：787587819591509</td>
+                                        <td colspan="5">{{'订单单号：' + order.orderId}}</td>
                                     </tr>
                                     <tr>
                                         <td>
-                                            <div class="typographic"><img src="img/goods.png" />
-                                                    <span>包邮 正品玛姬儿压缩面膜无纺布纸膜100粒 送泡瓶面膜刷喷瓶 新款</span>
-                                                    <span class="guige">规格：温泉喷雾150ml</span>
+                                            <div class="typographic"><img :src="d.image" width="85px" height="85px"/>
+                                                    <span>{{d.title}}</span>
+                                                    规格:&nbsp;<span class="guige" v-for="(v,k) in JSON.parse(d.ownSpec)">
+                                                        {{k}}&nbsp;:&nbsp;{{v}}
+                                                    </span>
                                                 </div>
                                         </td>
                                         <td>
                                             <ul class="unstyled">
-                                                    <li class="o-price">¥599.00</li>	
-                                                    <li>¥299.00</li>											
+                                                    <li class="o-price">¥{{ly.formatPrice(d.price)}}</li>
+                                                    <li>¥{{ly.formatPrice(d.price)}}</li>
                                                 </ul>
                                         </td>
-                                        <td>1</td>
+                                        <td>{{d.num}}</td>
                                         <td>无优惠</td>
-                                        <td>交易成功</td>
+                                        <td>{{order.status >= 4 ? '交易成功' : '交易中'}}</td>
                                     </tr>
                                 </tbody>
                             </table>
                             <div class="order-price">
-                                <p>商品总金额：￥1.8</p>
+                                <p>商品总金额：￥{{ly.formatPrice(order.totalPay)}}</p>
                                 <p>运费金额：，免费用</p>
                                 <p>使用优惠券：无</p>
-                                <h4 class="red">实际支付：￥1.8</h4>
+                                <h4 class="red">实际支付：￥{{ly.formatPrice(order.actualPay)}}</h4>
                             </div>
                             <div class="clearfix"></div>
                         </div>
@@ -291,11 +335,100 @@ $(function(){
             </div>
         </div>
     </div>
+</div>
+
+    <script>
+        var account = new Vue({
+            el:"#account",
+
+            components:{
+                lyTop: () => import("./js/pages/top.js"),
+            },
+            data(){
+                return{
+                    ly,
+                    order:{}            //
+                }
+            },
+
+            created(){
+                ly.verifyUser().then(() => {
+                    const orderId = ly.getUrlParam("orderId");
+                    ly.http.get("/order/order/"+orderId).then(({data}) => {
+                        this.order = data;
+                    }).catch(() => {
+                        this.$message.error("服务器繁忙")
+                    })
+
+                }).catch(() => {
+                    location.href = "/login.html?returnUrl=" + location.href;
+                })
+            },
+
+            methods:{
+                currentClass(num){
+                    if (this.order.status === num) {
+                        return "current";
+                    }else if (this.order.status > num) {
+                        return "finished";
+                    }else if (this.order.status < num) {
+                        return "todo";
+                    }
+                },
+
+                // 订单状态
+                optionStatus(status) {
+                    switch (status) {
+                        case 1:
+                            return '未付款';
+                        case 2:
+                            return '付款成功';
+                        case 3:
+                            return '已发货';
+                        case 4:
+                            return '已收货';
+                        case 5, 6:
+                            return '已评价';
+                    }
+                },
+
+                // 计算发货后的倒计时,默认7天
+                calculateTime(time){
+                    const sec = 604800 - (new Date().getTime() - new Date(time).getTime())/1000;
+                    const day = parseInt(sec/86400);
+                    const hour = parseInt(sec%86400/3600);
+                    return day + "天" + hour +"小时";
+                },
+
+                formatDate(time,pattern){
+                    return time? ly.formatDate(time,pattern) : '';
+                }
+            }
+
+        })
+    </script>
+
 
 	<!-- 底部栏位 -->
 	<!--页面底部，由js动态加载-->
 	<div class="clearfix footer"></div>
 	<script type="text/javascript">$(".footer").load("foot.html");</script>
+</body>
 	<!--页面底部END-->
+<script type="text/javascript">
+    $(function(){
+        $("#service").hover(function(){
+            $(".service").show();
+        },function(){
+            $(".service").hide();
+        });
+        $("#shopcar").hover(function(){
+            $("#shopcarlist").show();
+        },function(){
+            $("#shopcarlist").hide();
+        });
+
+    })
+</script>
 
 </html>

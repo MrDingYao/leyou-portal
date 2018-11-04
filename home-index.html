@@ -7,24 +7,69 @@
     <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7"/>
     <title>乐优商城--我的订单</title>
     <link rel="icon" href="assets/img/favicon.ico">
-
+    <link href='https://fonts.cat.net/css?family=Roboto:300,400,500,700|Material+Icons' rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="css/webbase.css"/>
     <link rel="stylesheet" type="text/css" href="css/pages-seckillOrder.css"/>
+
+    <link rel="stylesheet" href="node_modules/element-ui/lib/theme-chalk/index.css">
+
+    <!-- layui样式css -->
+    <!--<link href="node_modules/layui-src/dist/css/layui.css" rel="stylesheet"/>-->
+
     <script type="text/javascript" src="js/plugins/jquery/jquery.min.js"></script>
     <script type="text/javascript" src="js/plugins/jquery.easing/jquery.easing.min.js"></script>
     <script type="text/javascript" src="js/plugins/sui/sui.min.js"></script>
     <script type="text/javascript" src="js/plugins/jquery-placeholder/jquery.placeholder.min.js"></script>
     <script type="text/javascript" src="js/widget/nav.js"></script>
+    <!-- layui组件js -->
+    <script src="node_modules/layui-src/dist/layui.all.js"></script>
+    <script src="./js/vue/vue.min.js"></script>
+    <script src="node_modules/element-ui/lib/index.js"></script>
+    <script src="node_modules/iview/dist/iview.js"></script>
+    <script src="./js/axios.min.js"></script>
+    <script src="./js/common.js"></script>
+
 </head>
+<style type="text/css">
+    .box-card {
+        width: 560px;
+    }
+    .box-card2 {
+        width: 800px;
+        height: 400px;
+    }
+    .avatar-uploader .el-upload {
+        border: 1px dashed #d9d9d9;
+        border-radius: 6px;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+    .avatar-uploader .el-upload:hover {
+        border-color: #409EFF;
+    }
+    .avatar-uploader-icon {
+        font-size: 28px;
+        color: #8c939d;
+        width: 178px;
+        height: 178px;
+        line-height: 178px;
+        text-align: center;
+    }
+    .avatar {
+        width: 178px;
+        height: 178px;
+        display: block;
+    }
+    .el-row {
+        margin-bottom: 20px
+    }
+    .el-col {
+        border-radius: 4px;
+    }
+</style>
 
 <body>
-
-<!-- 头部栏位 -->
-<!--页面顶部，由js动态加载-->
-<!--<script type="text/javascript" src="plugins/jquery/jquery.min.js"></script>
-<div id="nav-bottom"></div>
-<script type="text/javascript">$("#nav-bottom").load("top.html");</script>-->
-
 
 <!--header-->
 <div id="account">
@@ -39,9 +84,9 @@
             <div class="yui3-u-1-6 list">
 
                 <div class="person-info">
-                    <div class="person-photo"><img src="img/_/photo.png" alt=""></div>
+                    <div class="person-photo"><img :src="imageUrl || 'img/_/photo.png'" width="50px" height="50px"></div>
                     <div class="person-account">
-                        <span class="name" v-text="user.username"></span>
+                        <span class="name" v-text="nickname"></span>
                         <span class="safe"><a href="#" @click="outLogin">退出登录 </a></span>
                     </div>
                     <div class="clearfix"></div>
@@ -66,9 +111,12 @@
                     </dl>
                     <dl>
                         <dt><i>·</i> 设置</dt>
-                        <dd><a href="home-setting-info.html">个人信息</a></dd>
-                        <dd><a href="home-setting-address.html">地址管理</a></dd>
-                        <dd><a href="home-setting-safe.html">安全管理</a></dd>
+                        <dd><a href="javascript:void(0)" :class="show===5?'list-active':''" @click="show=5">个人信息</a>
+                        </dd>
+                        <dd><a href="javascript:void(0)" :class="show===6?'list-active':''" @click="show=6">地址管理</a>
+                        </dd>
+                        <dd><a href="javascript:void(0)" :class="show===7?'list-active':''" @click="show=7">安全管理</a>
+                        </dd>
                     </dl>
                 </div>
             </div>
@@ -76,148 +124,144 @@
             <!--右侧主内容-->
             <div class="yui3-u-5-6 order-pay">
                 <div class="body">
-                    <div class="table-title">
-                        <table class="sui-table  order-table">
-                            <tr>
-                                <thead>
-                                <th width="35%">宝贝</th>
-                                <th width="5%">单价</th>
-                                <th width="5%">数量</th>
-                                <th width="8%">商品操作</th>
-                                <th width="10%">实付款</th>
-                                <th width="10%">交易状态</th>
-                                <th width="10%">交易操作</th>
-                                </thead>
-                            </tr>
-                        </table>
-                    </div>
 
-                    <!--<div v-show="show === 0">
-                        <div class="order-detail">
-                            <div class="orders">
-                                <div class="choose-order">
-                                    <div class="sui-pagination pagination-large top-pages">
-                                        <ul>
-                                            <li class="prev disabled"><a href="#">上一页</a></li>
-
-                                            <li class="next"><a href="#">下一页</a></li>
-                                        </ul>
-                                    </div>
-                                </div>
-
-                                &lt;!&ndash;order1&ndash;&gt;
-                                <div v-for="(order,i) in orderList" :key="i">
-                                    <div class="choose-title">
-                                        <label data-toggle="checkbox" class="checkbox-pretty ">
-                                            <input type="checkbox" checked="checked">
-                                            <span>
-                                            {{ly.formatDate(order.createTime,'yyyy-MM-dd hh:mm')+' 订单编号：'+order.orderId+'  店铺：哇哈哈 '}}
-                                            <a>和我联系</a>
-                                        </span>
-                                        </label>
-                                        <a class="sui-btn btn-info share-btn">分享</a>
-                                    </div>
-                                    <table class="sui-table table-bordered order-datatable">
-                                        <tbody v-for="(detail,j) in order.orderDetails" :key="j">
-                                        <tr>
-                                            <td width="35%">
-                                                <div class="typographic"><img :src="detail.image" width="85px"
-                                                                              height="85px"/>
-                                                    <a href="#" class="block-text">{{detail.title}}</a>
-                                                    <span class="guige">
-                                                    <span v-for="(v,k,i) in JSON.parse(detail.ownSpec)" :key="k">
-                                                        {{k}}:{{v}}
-                                                    </span>
-                                                    </span>
-                                                </div>
-                                            </td>
-                                            <td width="5%" class="center">
-                                                <ul class="unstyled">
-                                                    <li class="o-price">¥{{ly.formatPrice(detail.price)}}</li>
-                                                    <li>¥{{ly.formatPrice(detail.price)}}</li>
-                                                </ul>
-                                            </td>
-                                            <td width="5%" class="center">{{detail.num}}</td>
-                                            <td width="8%" class="center">
-
-                                            </td>
-                                            <td width="10%" class="center" :rowspan="order.orderDetails.length" v-if="j===0">
-                                                <ul class="unstyled">
-                                                    <li>¥{{ly.formatPrice(order.actualPay)}}</li>
-                                                    <li>（含运费：￥{{ly.formatPrice(order.postFee ? order.postFee : 0)}}）</li>
-                                                </ul>
-                                            </td>
-                                            <td width="10%" class="center" :rowspan="order.orderDetails.length" v-if="j===0">
-                                                <ul class="unstyled">
-                                                    <li>{{orderStatus(order.status)}}</li>
-                                                    <li><a href="home-orderDetail.html" class="btn">订单详情 </a></li>
-                                                </ul>
-                                            </td>
-                                            <td width="10%" class="center" :rowspan="order.orderDetails.length" v-if="j===0">
-                                                <ul class="unstyled">
-                                                    <li>
-                                                        <a href="#" class="sui-btn btn-info">
-                                                            {{optionStatus(order.status)}}
-                                                        </a>
-                                                    </li>
-                                                    <li>取消订单</li>
-
-                                                </ul>
-                                            </td>
-                                        </tr>
-
-
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-
-
-                            <div class="choose-order">
-                                <div class="sui-pagination pagination-large top-pages">
-                                    <ul>
-                                        <li :class="{prev:true, disabled: search.page===1}" @click="prevPage">
-                                            <a href="javascript:void(0)">«上一页</a>
-                                        </li>
-                                        <li :class="{active: search.page === index(i)}" v-for="i in Math.min(5,totalPage)" :key="i" @click="search.page = index(i)">
-                                            <a href="javascript:void(0)">
-                                                {{index(i)}}
-                                            </a>
-                                        </li>
-
-                                        <li class="dotted" v-show="totalPage>5 && (totalPage-search.page)>2">
-                                            <span>...</span>
-                                        </li>
-                                        <li class="next" :class="{next:true, disabled:search.page === totalPage}" @click="nextPage">
-                                            <a href="javascript:void(0)">下一页»</a>
-                                        </li>
-                                    </ul>
-                                    <div>
-                                        <span>共{{totalPage}}页&nbsp;</span>
-                                        <span>
-                                            到<input type="text" class="page-num">
-                                            <button class="page-confirm" onclick="alert(1)">确定</button>页
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="clearfix"></div>
-                        </div>
-                    </div>-->
-
+                    <!-- 订单中心组件 -->
                     <div>
-                        <my-order-list :status="show"/>
+                        <my-order-list :status="show" v-show="show<5"/>
                     </div>
-                    <!--<div v-show="show === 2">
-                        <h1>待发货</h1>
+
+                    <!-- 个人信息 -->
+                    <div>
+                        <home-setting-info v-show="show === 5"/>
                     </div>
-                    <div v-show="show === 3">
-                        <h1>待收获</h1>
+
+                    <!-- 我的地址管理 -->
+                    <div v-show="show === 6">
+                        <div>
+                            <el-header>
+                                <el-button type="primary" @click="handleAdd">新增地址</el-button>
+                            </el-header>
+
+                            <!-- 显示地址的表格 -->
+                            <el-table :data="addressData" border style="width: 100%">
+                                <el-table-column prop="name" label="收货人" width="120"></el-table-column>
+
+                                <el-table-column prop="areaAddress" label="所在地区" width="180"></el-table-column>
+
+                                <el-table-column prop="detailAddress" label="详细地址"></el-table-column>
+
+                                <el-table-column prop="receiveZip" label="邮编"></el-table-column>
+
+                                <el-table-column prop="phone" label="电话/手机"></el-table-column>
+
+                                <el-table-column fixed="right" width="100" label="默认">
+                                    <template slot-scope="scope">
+                                        <el-button
+                                                :type="scope.row.isDefault ? 'success' : 'text'"
+                                                size="small" plain :disabled="scope.row.isDefault" @click="addDefault(scope.row)">
+                                            {{scope.row.isDefault ? '默认' : '设为默认'}}
+                                        </el-button>
+                                    </template>
+                                </el-table-column>
+
+                                <el-table-column label="操作" width="100">
+                                    <template slot-scope="scope">
+                                        <!-- 编辑按钮 -->
+                                        <el-button @click="handleEdit(scope.row)"
+                                                   type="primary" size="small" icon="el-icon-edit" circle>
+
+                                        </el-button>
+
+                                        <!-- 删除按钮 -->
+                                        <el-button type="danger" size="small" @click="handleDelete(scope.row)"
+                                                   icon="el-icon-delete" circle></el-button>
+                                    </template>
+                                </el-table-column>
+
+                            </el-table>
+
+                            <!-- 编辑和新增地址的弹窗 -->
+                            <el-dialog :title="isEdit ? '编辑收货地址' : '新增收货地址'" :visible.sync="showDialog" :before-close="handleClose" width="45%">
+
+                                <el-form :model="address" status-icon :rules="rules" ref="address">
+
+
+                                    <el-form-item label="收货人" :label-width="formLabelWidth" prop="name" :label-width="formLabelWidth">
+
+                                        <el-col :span="8">
+                                            <el-input v-model="address.name" autocomplete="off" size="medium"></el-input>
+                                        </el-col>
+
+                                    </el-form-item>
+
+
+                                    <el-form-item label="所在地区" :label-width="formLabelWidth" prop="address">
+                                        <el-col :span="7">
+                                            <el-select v-model="address.areaAddress.province" placeholder="请选择省份" @change="selectP">
+                                                <el-option v-for="item in area.provinces" :key="item.id" :label="item.name" :value="item.name">
+                                                </el-option>
+                                            </el-select>
+                                        </el-col>
+
+                                        <el-col class="line" :span="1">&nbsp;</el-col>
+
+                                        <el-col :span="7">
+                                            <el-select v-model="address.areaAddress.city" placeholder="请选择市" @change="selectC">
+                                                <el-option v-for="item in area.cities" :key="item.id" :label="item.name" :value="item.name">
+                                                </el-option>
+                                            </el-select>
+                                        </el-col>
+
+                                        <el-col class="line" :span="1">&nbsp;</el-col>
+
+                                        <el-col :span="7">
+                                            <el-select v-model="address.areaAddress.downtown" placeholder="请选择县">
+                                                <el-option v-for="item in area.downtowns" :key="item.id" :label="item.name" :value="item.name">
+                                                </el-option>
+                                            </el-select>
+                                        </el-col>
+
+                                    </el-form-item>
+
+
+                                    <el-form-item label="详细地址" :label-width="formLabelWidth" prop="detailAddress">
+                                        <el-col :span="16">
+                                            <el-input v-model="address.detailAddress" autocomplete="off"></el-input>
+                                        </el-col>
+                                    </el-form-item>
+
+                                    <el-form-item label="联系电话" :label-width="formLabelWidth" prop="phone">
+                                        <el-col :span="16">
+                                            <el-input v-model="address.phone" autocomplete="off"></el-input>
+                                        </el-col>
+                                    </el-form-item>
+
+                                    <el-form-item label="邮编" :label-width="formLabelWidth" prop="email">
+                                        <el-col :span="16">
+                                            <el-input v-model="address.receiveZip" autocomplete="off"></el-input>
+                                        </el-col>
+                                    </el-form-item>
+
+
+                                </el-form>
+                                <div slot="footer" class="dialog-footer">
+                                    <el-button @click="handleClose">取 消</el-button>
+                                    <el-button type="primary" @click="submit('address')">保 存</el-button>
+                                    <el-button @click="resetForm('address')">重 置</el-button>
+                                </div>
+                            </el-dialog>
+
+                        </div>
+
                     </div>
-                    <div v-show="show === 4">
-                        <h1>待评价</h1>
-                    </div>-->
+
+                    <!-- 安全管理 -->
+                    <div>
+                        <home-setting-safe v-show="show === 7"/>
+                    </div>
+
+
+
 
                     <!-- 热卖单品内容 -->
                     <div class="like-title">
@@ -312,9 +356,7 @@
         </div>
     </div>
 </div>
-<script src="./js/vue/vue.min.js"></script>
-<script src="./js/axios.min.js"></script>
-<script src="./js/common.js"></script>
+
 <script>
 
     var account = new Vue({
@@ -322,12 +364,39 @@
 
         components: {
             lyTop: () => import("./js/pages/top.js"),
-            myOrderList: () => import("./js/pages/my-order-list.js")
+            myOrderList: () => import("./js/pages/homeIndexItems/my-order-list.js"),
+            homeSettingInfo: () => import("./js/pages/homeIndexItems/homeSettingInfo.js"),
+            homeSettingSafe: () => import("./js/pages/homeIndexItems/homeSettingSafe.js")
         },
 
         data() {
+
+            // 手机号的校验规则
+            var checkPhone = (rule, value, callback) => {
+                const regex = /^[1][3,4,5,7,8][0-9]{9}$/;
+                if (!value) {
+                    return callback(new Error('手机号不能为空'));
+                } else if (!regex.test(value)) {
+                    return callback(new Error("请输入正确的手机号"));
+                } else {
+                    callback();
+                }
+            };
+
+            // 邮编的校验规则
+            var checkReceiveZip = (rule, value, callback) => {
+                const regex = /^[0-9]{6}$/;
+                if (!regex.test(value)) {
+                    return callback(new Error("请输入正确的邮编"));
+                } else {
+                    callback();
+                }
+            };
+
+
             return {
                 ly,
+                imageUrl:'',
                 user: {
                     username: ""
                 },
@@ -341,6 +410,51 @@
                 orderList: [],               // 所有订单信息
                 show: 0,
 
+                isEdit: false,               // 是否是编辑还是新增地址
+
+                addressData: [],             // 用户保存的所有的地址信息
+                showDialog: false,           // 新增地址弹窗显示
+                formLabelWidth: '90px',
+                address: {                  // 地址
+                    id:"",
+                    name: "",
+                    phone: "",
+                    areaAddress: {
+                        province: "",
+                        city: "",
+                        downtown: ""
+                    },
+                    detailAddress: "",
+                    receiveZip: "",
+                    isDefault:0
+                },
+
+
+                allAreas: [],                   // 所有的省市区
+                area: {
+                    provinces: [],               // 省信息数组
+                    cities: [],                  // 市信息数组
+                    downtowns: []                // 县信息数组
+                },
+                nickname:'',
+
+                // 表单校验规则
+                rules: {
+                    name: [
+                        {required: true, message: '请输入收货人名称', trigger: 'blur'},
+                        {min: 2, message: '长度不小于 2 个字符', trigger: ['blur', 'change']}
+                    ],
+                    detailAddress: [
+                        {required: true, message: '请输入详细地址', trigger: ['blur', 'change']}
+                    ],
+                    phone: [
+                        {validator: checkPhone, trigger: 'blur'}
+                    ],
+                    receiveZip: [
+                        {validator: checkReceiveZip, trigger: ['blur', 'change']}
+                    ]
+                },
+
             }
         },
 
@@ -352,15 +466,15 @@
                 ly.http.get("/auth/verify")
                     .then(resp => {
                         this.user = resp.data;
+                        ly.http.get("user/userInfo").then(({data}) => {
+                            this.imageUrl = data ? data.image : '';
+                            this.nickname = data.nickname || resp.data.username;
+                        })
+
                     });
 
-                /*const search = ly.parse(location.search.substring(1));
-                // 对page进行判空，初始化
-                search.page = search.page ? parseInt(search.page) : 1;
-                search.rows = search.rows ? parseInt(search.rows) : 5;
-                search.status = search.status || 0;
-                this.search = search;
-                this.loadOrderList();*/
+                this.loadAddressData();
+
             }).catch(() => {
                 // 未登录，跳转至登陆页面
                 location.href = "/login.html?returnUrl=" + location.href;
@@ -370,83 +484,195 @@
 
 
         methods: {
-            // 分页查询用户的所有订单
-            /*loadOrderList() {
-                const page = this.search.page;
-                const rows = this.search.rows;
-                const status = this.search.status;
-                ly.http.get("order/order/list?page=" + page + "&rows=" + rows + "&status=" + status)
-                    .then(({data}) => {
-                        console.log(data);
-                        this.orderList = data.items;
-                        this.total = data.total;
-                        this.totalPage = data.totalPage
-                    });
-            },*/
+
+            // 获取头像图片
+            setImageUrl(){
+                ly.http.get("user/userInfo").then(({data}) => {
+                    this.imageUrl = data ? data.image : '';
+                    this.nickname = data.name;
+                })
+            },
+
+            // 加载地址表格
+            loadAddressData(){
+                // 查询用户的地址
+                ly.http.get("user/address").then(({data}) => {
+                    this.addressData = data;
+                });
+
+                // 查询省市区信息
+                ly.http.get("user/address/area").then(({data}) => {
+                    this.allAreas = data;
+                    this.area.provinces = data.filter(c => c.pid === 0)
+                });
+            },
+
+            // 提交地址
+            submit(formName) {
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        // 判断是否登陆
+                        ly.verifyUser().then(() => {
+                            const {areaAddress,...address} = this.address;
+                            //Object.assign(address, this.address);
+                            address.areaAddress = Object.values(this.address.areaAddress).join("-");
+                            console.log(address);
+                            // 发送请求
+                            ly.http({
+                                method:this.isEdit ? "put" : "post",
+                                url:"user/address",
+                                data:address
+                            }).then(() => {
+                                this.$message.success("保存成功");
+                                this.loadAddressData();
+                            }).catch(() => {
+                                this.$message.error("服务器异常,保存失败")
+                            });
+                            this.showDialog = false;
+                            this.resetForm("address")
+                        }).catch(() => {
+                            location.href = "/login.html?returnUrl=" + location.href;
+                        })
+
+                    } else {
+                        console.log('error submit!!');
+                        return false;
+                    }
+                });
+            },
 
             // 退出登陆
             outLogin() {
                 ly.http.delete("/auth").then(() => {
+
+                    location.href = "/login.html?returnUrl=" + location.href;
                     this.user = null;
+
                 })
             },
 
-            /*index(i) {
-                if (this.totalPage <= 5 || this.search.page <= 3) {
-                    return i;
-                }
-                else if (this.totalPage - this.search.page >= 2) {
-                    return this.search.page - 3 + i;
-                }
-                else {
-                    return this.totalPage - 5 + i;
-                }
+            // 选择省份的change事件
+            selectP() {
+                this.area.cities = this.allAreas.filter(c =>
+                    c.pid === (this.allAreas.find(c => c.name === this.address.areaAddress.province).id)
+                ) || [];
+                this.area.downtowns = [];
+                this.address.areaAddress.city = "";
+                this.address.areaAddress.downtown = "";
+                console.log(this.area.cities)
             },
 
-            // 上一页
-            prevPage() {
-                if (this.search.page > 1) {
-                    this.search.page--;
-                    window.location.href = "http://www.leyou.com/home-index.html?" + ly.stringify(this.search);
-                }
+            // 选择市的change事件
+            selectC() {
+                this.area.downtowns = this.allAreas.filter(c =>
+                    c.pid === (this.allAreas.find(c => c.name === this.address.areaAddress.city).id)
+                ) || [];
+                this.address.areaAddress.downtown = "";
+                console.log(this.area.downtowns)
             },
 
-            // 下一页
-            nextPage() {
-                if (this.search.page < this.totalPage) {
-                    this.search.page++;
-                    window.location.href = "http://www.leyou.com/home-index.html?" + ly.stringify(this.search);
-                }
+            // 编辑地址的方法
+            handleEdit(row) {
+                this.isEdit = true;
+                this.showDialog = true;
+                const {areaAddress,...params} = row;
+                Object.assign(this.address,params);
+                const area = areaAddress.split("-").map(c => c.trim());
+                this.address.areaAddress.province = area[0];
+                this.address.areaAddress.city = area[1];
+                this.address.areaAddress.downtown = area[2];
             },
 
-            // 订单状态
-            orderStatus(status) {
-                switch (status) {
-                    case 1:
-                        return '等待买家付款';
-                    case 2:
-                        return '买家已付款';
-                    case 3:
-                        return '卖家已发货';
-                    case 4, 5, 6:
-                        return '交易成功';
-                }
+            // 添加地址的方法
+            handleAdd() {
+                this.address = {                  // 地址
+                    name: "",
+                    phone: "",
+                    areaAddress: {
+                        province: "",
+                        city: "",
+                        downtown: ""
+                    },
+                    detailAddress: "",
+                    receiveZip: "",
+                    isDefault:0
+                };
+                this.isEdit = false;
+                this.resetForm("address");
+                this.showDialog = true;
             },
 
-            optionStatus(status) {
-                switch (status) {
-                    case 1:
-                        return '立即付款';
-                    case 2:
-                        return '提醒发货';
-                    case 3:
-                        return '确认收货';
-                    case 4:
-                        return '评价';
-                    case 5, 6:
-                        return '已评价';
+            // 删除地址的方法
+            handleDelete(row){
+                ly.verifyUser().then(() => {
+                    this.$confirm("确定删除该地址?").then(() => {
+                        ly.http.delete("user/address/" + row.id).then(() => {
+                            this.loadAddressData();
+                            this.$message.success("删除成功")
+                        }).catch(() => {
+                            this.$message.error("服务器异常,删除失败")
+                        })
+                    }).catch(() => {
+                        this.$message.info("删除操作已取消");
+                    })
+                }).catch(() => {
+                    location.href = "/login.html?returnUrl=" + location.href;
+                })
+            },
+
+            // 重置弹窗的内容
+            resetForm(formName) {
+                if (this.$refs[formName]) {
+                    this.$refs[formName].resetFields();
                 }
-            }*/
+                this.address = {                  // 地址
+                    name: "",
+                    phone: "",
+                    areaAddress: {
+                        province: "",
+                        city: "",
+                        downtown: ""
+                    },
+                    detailAddress: "",
+                    receiveZip: "",
+                    isDefault:0
+                };
+            },
+
+            // 关闭弹窗方法
+            handleClose() {
+                this.showDialog = false;
+                this.address = {                  // 地址
+                    name: "",
+                    phone: "",
+                    areaAddress: {
+                        province: "",
+                        city: "",
+                        downtown: ""
+                    },
+                    detailAddress: "",
+                    receiveZip: "",
+                    isDefault:0
+                };
+                this.loadAddressData();
+            },
+
+            // 设置默认地址
+            addDefault(row){
+                ly.verifyUser().then(() => {
+                    ly.http.put("user/address/"+row.id).then(() => {
+                        // 刷新显示
+                        this.loadAddressData();
+                        this.$message.success("设置成功")
+                    }).catch(() => {
+                        this.$message.error("服务器异常,设置失败")
+                    })
+                }).catch(() => {
+                    location.href = "/login.html?returnUrl=" + location.href;
+                })
+            }
+
+
         },
 
         computed: {},
@@ -458,8 +684,6 @@
                     if (!val) {
                         location.href = "/login.html?returnUrl=" + location.href;
                     }
-
-
                 }
             }
         }
@@ -491,3 +715,15 @@
 
 
 </html>
+<script>
+    import HomeSettingInfo from "./js/pages/homeIndexItems/homeSettingInfo";
+    export default {
+        components: {HomeSettingInfo}
+    }
+</script>
+<script>
+    import HomeSettingSafe from "./js/pages/homeIndexItems/homeSettingSafe";
+    export default {
+        components: {HomeSettingSafe}
+    }
+</script>
